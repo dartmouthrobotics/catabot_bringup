@@ -1,29 +1,29 @@
 <launch>
   <!-- device usage flags -->
-  <arg name="use_lidar" default="true"/>
-  <arg name="lidar_ouster" default="true"/>
+  <arg name="use_lidar" default="false"/>
+  <arg name="lidar_ouster" default="false"/>
   <arg name="use_surface_camera" default="true"/>
-  <arg name="use_underwater_camera" default="false"/>
+  <arg name="use_underwater_camera" default="true"/>
   <arg name="use_sonde" default="true"/>
+  <arg name="use_sonar" default="true"/>
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
 
   <!-- time delays -->
-  <arg name="usb_cam_node_start_delay" default="3.0" />
-  <arg name="usb_cam_underwater_start_delay" default="1.0" />
+  <arg name="usb_cam_node_start_delay" default="0.0" />
+  <arg name="usb_cam_underwater_start_delay" default="2.0" />
   
   <!-- usb parameters under udev rules --> 
-  <!-- TODO underwater cam -->
-  <arg name="usb_underwater" default="/dev/video2"/>
-  
+  <arg name="usb_underwater" default="/dev/underwater_cam"/>
   <arg name="usb_surface" default="/dev/surface_cam"/>
   <arg name="usb_sonde" default="/dev/ysi_sonde"/>
+  <arg name="usb_sonar" default="/dev/sonar"/>
   <arg name="usb_pixhawk" default="/dev/pixhawk4"/>
   <arg name="pixhawk_baudrate" default="57600" />
 
   <!-- miscellaneous arguments -->
   <arg name="ouster_host" default="os-992121000445.local" />
-  <arg name="udp_dest" default="192.168.1.2" /> <!-- host of catabot-2 -->
+  <arg name="udp_dest" default="192.168.1.3" /> <!-- host of catabot-3 -->
   <arg name="lidar_mode" default="1024x10" />
   <arg name="metadata" default="/home/catabot-2/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
 
@@ -42,7 +42,11 @@
   </group>
 
   <!-- sonar node-->
-  <!--node pkg="atu_sonar" type="atu120at_node.py" name="atu_sonar" /-->
+  <group if="$(arg use_sonar)"> 
+    <node pkg="nmea_depth_transducer" type="nmea_depth_transducer_node" name="nmea_depth_transducer" >
+      <param name="serial_port" value="$(arg usb_sonar)" />
+    </node>
+  </group>
   
   <!-- Transform for getting the lidar tf in place -->
   <node if="$(arg use_lidar)" pkg="tf" type="static_transform_publisher" name="lidar_tf_broadcaster" args="-0.8 0 0.515 0 0 0 base_link velodyne 100" />
