@@ -1,7 +1,7 @@
 <launch>
   <!-- device usage flags -->
   <arg name="use_lidar" default="true"/>
-  <arg name="lidar_ouster" default="true"/>
+  <arg name="lidar_ouster" default="false"/>
   <arg name="use_surface_camera" default="true"/>
   <arg name="use_underwater_camera" default="false"/>
   <arg name="use_sonde" default="true"/>
@@ -26,12 +26,15 @@
   <arg name="udp_dest" default="192.168.1.2" /> <!-- host of catabot-2 -->
   <arg name="lidar_mode" default="1024x10" />
   <arg name="metadata" default="/home/catabot-2/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="mavros_ns" default=""/>
 
   <!-- mavros node -->
   <group if="$(arg use_pixhawk)">
-      <include file="$(find mavros)/launch/apm.launch">
-          <arg name="fcu_url" value="$(arg usb_pixhawk):$(arg pixhawk_baudrate)"/>
-      </include>
+      <group ns="$(arg mavros_ns)">
+          <include file="$(find mavros)/launch/apm.launch">
+              <arg name="fcu_url" value="$(arg usb_pixhawk):$(arg pixhawk_baudrate)"/>
+          </include>
+      </group>
   </group>
 
   <!-- sonde node  -->
