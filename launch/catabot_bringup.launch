@@ -4,7 +4,7 @@
   <arg name="lidar_ouster" default="true"/>
   <arg name="use_surface_camera" default="true"/>
   <arg name="use_underwater_camera" default="false"/>
-  <arg name="use_sonde" default="true"/>
+  <arg name="use_sonde" default="false"/>
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
 
@@ -25,7 +25,8 @@
   <arg name="ouster_host" default="os-992121000445.local" />
   <arg name="udp_dest" default="192.168.1.2" /> <!-- host of catabot-2 -->
   <arg name="lidar_mode" default="1024x10" />
-  <arg name="metadata" default="/home/catabot-2/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="metadata" default="$(env HOME)/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="viz" default="false" /> <!-- ouster rviz -->
 
   <!-- mavros node -->
   <group if="$(arg use_pixhawk)">
@@ -52,11 +53,13 @@
   <group if="$(arg use_lidar)">
       <!-- Ouster use -->
       <group if="$(arg lidar_ouster)">
-          <include file="$(find ouster_ros)/ouster.launch">
+          <include file="$(find ouster_ros)/launch/sensor.launch">
             <arg name="sensor_hostname" value="$(arg ouster_host)" />
-            <arg name="udp_dest" value="$(arg udp_dest)" />
+           <!-- <arg name="udp_dest" value="$(arg udp_dest)" /> -->
             <arg name="metadata" value="$(arg metadata)" />
             <arg name="lidar_mode" value="$(arg lidar_mode)" />
+            <arg name="timestamp_mode" value="TIME_FROM_ROS_TIME" />
+            <arg name="viz" value="$(arg viz)" />
           </include>
       </group>
       
@@ -74,7 +77,7 @@
           <param name="video_device" value="$(arg usb_surface)" />
           <param name="image_width" value="640" />
           <param name="image_height" value="480" />
-          <param name="pixel_format" value="mjpeg" />
+          <param name="pixel_format" value="yuyv" />
           <!--param name="io_method" value="mmap"/-->
           <param name="auto_focus" value="false"/>
           <param name="framerate" value="30"/>
