@@ -1,10 +1,12 @@
 <launch>
   <!-- device usage flags -->
-  <arg name="use_lidar" default="true"/>
-  <arg name="lidar_ouster" default="false"/>
+  <arg name="use_lidar" default="false"/>
+  <arg name="lidar_ouster" default="true"/>
   <arg name="use_surface_camera" default="true"/>
   <arg name="use_underwater_camera" default="false"/>
-  <arg name="use_sonde" default="true"/>
+  <arg name="use_sonde" default="false"/>
+  <arg name="dcp_version" default="2"/>
+  <arg name="sonde_baudrate" default="57600"/>
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
 
@@ -23,10 +25,10 @@
 
   <!-- miscellaneous arguments -->
   <arg name="ouster_host" default="os-992121000445.local" />
-  <arg name="udp_dest" default="192.168.1.2" /> <!-- host of catabot-2 -->
+  <arg name="udp_dest" default="192.168.1.3" /> <!-- host of catabot-2 -->
   <arg name="lidar_mode" default="1024x10" />
-  <arg name="metadata" default="/home/catabot-2/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
-  <arg name="mavros_ns" default=""/>
+  <arg name="metadata" default="/home/catabot-3/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="mavros_ns" default="mavros"/>
 
   <!-- mavros node -->
   <group if="$(arg use_pixhawk)">
@@ -41,6 +43,9 @@
   <group if="$(arg use_sonde)">
       <include file="$(find ysi_exo)/launch/ysi_exo.launch">
           <arg name="serial_port" value="$(arg usb_sonde)"/>
+          <arg name="dcp_version" value="$(arg dcp_version)"/>
+          <arg name="baudrate" value="$(arg sonde_baudrate)"/>
+ 
       </include>
   </group>
 
