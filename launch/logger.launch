@@ -63,6 +63,9 @@
 /camera/stereo_module/parameter_descriptions
 /camera/stereo_module/parameter_updates
 /diagnostics
+/depth_transducer/depth
+/depth_transducer/nmea_raw
+/depth_transducer/temperature
 /joint_states
 /mavlink/from
 /mavlink/gcs_ip
@@ -181,8 +184,8 @@
 /mavros/vision_pose/pose_cov
 /mavros/wind_estimation
 /odometry/filtered
-/os_node/imu_packets
-/os_node/lidar_packets
+/ouster/imu_packets
+/ouster/lidar_packets
 /rosout
 /rosout_agg
 /set_pose
