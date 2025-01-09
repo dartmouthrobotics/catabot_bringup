@@ -1,6 +1,7 @@
 <launch>
 
-<arg name="bag.name" default="/home/catabot-5/datalog/rosbag/catabot-5"/>
+<!-- <arg name="bag.name" default="/home/catabot-5/datalog/rosbag/catabot-5"/> -->
+<arg name="bag.name" default="$(env HOME)/datalog/rosbag/$(env USER)"/>
 <arg name="bag.topics"
      default=
      "
