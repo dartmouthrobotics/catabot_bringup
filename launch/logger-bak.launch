@@ -1,6 +1,5 @@
 <launch>
 
-<!-- <arg name="bag.name" default="/home/catabot-5/datalog/rosbag/catabot-5"/> -->
 <arg name="bag.name" default="$(env HOME)/datalog/rosbag/$(env USER)"/>
 <arg name="bag.topics"
      default=
@@ -64,10 +63,9 @@
 /camera/stereo_module/parameter_descriptions
 /camera/stereo_module/parameter_updates
 /diagnostics
-/depth_transducer/depth
-/depth_transducer/nmea_raw
-/depth_transducer/temperature
 /joint_states
+/imagenex896/range
+/imagenex896/range_raw
 /mavlink/from
 /mavlink/gcs_ip
 /mavlink/to
@@ -187,17 +185,40 @@
 /odometry/filtered
 /ouster/imu_packets
 /ouster/lidar_packets
-/imagenex896/range
-/imagenex896/range_raw
+/robot_0/LSTM_out
+/robot_0/ais_info
+/robot_0/base_pose_ground_truth
+/robot_0/boundary
+/robot_0/cluster
+/robot_0/cluster_visualize
+/robot_0/cmd_vel
+/robot_0/control_state
+/robot_0/next_wp_marker
+/robot_0/odom
+/robot_0/gps_converted_odom
+/robot_0/passage_plan
+/robot_0/running_time
+/robot_1/ais_info
+/robot_1/base_pose_ground_truth
+/robot_1/boundary
+/robot_1/cmd_vel
+/robot_1/mavros/setpoint_velocity/cmd_vel_unstamped
+/robot_1/control_state
+/robot_1/odom
+/robot_1/gps_converted_odom
 /rosout
 /rosout_agg
 /set_pose
+/sonar
 /standalone_nodelet/bond
 /tf
 /tf_static
+/usb_cam_underwater/camera_info
+/usb_cam_underwater/image_raw/compressed
+/usb_cam_surface/camera_info
+/usb_cam_surface/image_raw/compressed
 /scan
 /sonde
-/robot_0/sonar
 /velodyne_nodelet_manager/bond
 /velodyne_nodelet_manager_cloud/parameter_descriptions
 /velodyne_nodelet_manager_cloud/parameter_updates
@@ -207,10 +228,6 @@
 /velodyne_nodelet_manager_laserscan/parameter_updates
 /velodyne_packets
 /velodyne_points
-/robot_0/usb_cam_underwater/camera_info
-/robot_0/usb_cam_underwater/image_raw/compressed
-/robot_0/usb_cam_surface/camera_info
-/robot_0/usb_cam_surface/image_raw/compressed
 "/>
 
   <node pkg="rosbag" type="record" name="$(anon record)" args="--output-prefix=$(arg bag.name) $(arg bag.topics)" />

@@ -6,6 +6,7 @@
   <arg name="use_underwater_camera" default="false"/>
   <arg name="use_sonde" default="true"/>
   <arg name="use_sonar" default="true"/>
+  <arg name="use_sidescan" default="false"/>
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
 
@@ -17,7 +18,7 @@
   <!-- TODO underwater cam -->
   <arg name="usb_underwater" default="/dev/video2"/>
   
-  <arg name="usb_surface" default="/dev/surface_cam"/>
+  <arg name="usb_surface" default="/dev/video0"/> <!-- /dev/surface_cam"/ -->
   <arg name="usb_sonde" default="/dev/ysi_sonde"/>
   <arg name="usb_sonar" default="/dev/sonar"/>
   <arg name="usb_pixhawk" default="/dev/pixhawk4"/>
@@ -25,9 +26,9 @@
 
   <!-- miscellaneous arguments -->
   <arg name="ouster_host" default="os-992121000445.local" />
-  <arg name="udp_dest" default="192.168.1.2" /> <!-- host of catabot-2 -->
+  <arg name="udp_dest" default="10.223.142.5" /> <!-- host of catabot-2 -->
   <arg name="lidar_mode" default="1024x10" />
-  <arg name="metadata" default="$(env HOME)/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="metadata" default="/home/catabot-5/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
   <arg name="viz" default="false" /> <!-- ouster rviz -->
 
   <!-- mavros node -->
@@ -58,6 +59,8 @@
   <!-- Lidar node -->
   <group if="$(arg use_lidar)">
       <!-- Ouster use -->
+      <!-- sudo route del -net 169.254.0.0 gw 0.0.0.0 netmask 255.255.0.0 dev wlp0s20f3 -->
+      <!-- sudo route add -net 169.254.0.0/16 dev eno1 -->
       <group if="$(arg lidar_ouster)">
           <include file="$(find ouster_ros)/launch/sensor.launch">
             <arg name="sensor_hostname" value="$(arg ouster_host)" />
@@ -111,7 +114,10 @@
     <arg name="external_manager" value="true"/>
     <arg name="manager" value="velodyne_nodelet_manager" />
   </include-->
-  
+  <group if="$(arg use_sidescan)">
+      <include file="$(find imagenex_sidescan)/launch/sidescansonar.launch" />
+  </group>
+
   <!-- ROSbag Record node -->
   <group if="$(arg use_logging)">
       <include file="$(find catabot_bringup)/launch/logger.launch" />
