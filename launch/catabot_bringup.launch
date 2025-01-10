@@ -1,11 +1,11 @@
 <launch>
   <!-- device usage flags -->
-  <arg name="use_lidar" default="false"/>
+  <arg name="use_lidar" default="true"/>
   <arg name="lidar_ouster" default="true"/>
   <arg name="use_surface_camera" default="true"/>
   <arg name="use_underwater_camera" default="false"/>
-  <arg name="use_sonde" default="true"/>
-  <arg name="use_sonar" default="true"/>
+  <arg name="use_sonde" default="false"/>
+  <arg name="use_sonar" default="false"/>
   <arg name="use_sidescan" default="false"/>
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
@@ -30,6 +30,7 @@
   <arg name="lidar_mode" default="1024x10" />
   <arg name="metadata" default="/home/catabot-5/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
   <arg name="viz" default="false" /> <!-- ouster rviz -->
+  <arg name="timestamp_mode_ouster" default="TIME_FROM_ROS_TIME" />
 
   <!-- mavros node -->
   <group if="$(arg use_pixhawk)">
@@ -53,8 +54,8 @@
   </group>
   
   <!-- Transform for getting the lidar tf in place -->
-  <node if="$(arg use_lidar)" pkg="tf" type="static_transform_publisher" name="lidar_tf_broadcaster" args="-0.8 0 0.515 0 0 0 base_link velodyne 100" />
-  <node if="$(arg use_surface_camera)" pkg="tf" type="static_transform_publisher" name="surfcam_tf_broadcaster" args="-0.8 0 0.4 0 0 0 base_link surface_cam 100" />
+  <!-- <node if="$(arg use_lidar)" pkg="tf" type="static_transform_publisher" name="lidar_tf_broadcaster" args="-0.8 0 0.515 0 0 0 base_link velodyne 100" /> -->
+  <!-- <node if="$(arg use_surface_camera)" pkg="tf" type="static_transform_publisher" name="surfcam_tf_broadcaster" args="-0.8 0 0.4 0 0 0 base_link surface_cam 100" /> -->
 
   <!-- Lidar node -->
   <group if="$(arg use_lidar)">
@@ -67,7 +68,7 @@
            <!-- <arg name="udp_dest" value="$(arg udp_dest)" /> -->
             <arg name="metadata" value="$(arg metadata)" />
             <arg name="lidar_mode" value="$(arg lidar_mode)" />
-            <arg name="timestamp_mode" value="TIME_FROM_ROS_TIME" />
+            <arg name="timestamp_mode" value="$(arg timestamp_mode_ouster)" />
             <arg name="viz" value="$(arg viz)" />
           </include>
       </group>

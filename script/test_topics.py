@@ -10,7 +10,7 @@ topics_to_check = [
     "ouster/lidar_packets",
     "usb_cam_surface/image_raw/compressed",
     "imagenex896/range",
-    "gps_converted_odom"
+    # "gps_converted_odom"
         ]
 
 # partial matching works

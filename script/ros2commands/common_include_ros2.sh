@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source /opt/ros/noetic/setup.bash
-source /home/catabot-5/catkin_ws/devel/setup.bash
+unset ${!ROS@}
+source /opt/ros/foxy/setup.bash
 
 function field_setup_doodle() {
  unset ROS_HOSTNAME
@@ -10,7 +10,7 @@ function field_setup_doodle() {
  sudo iptables -P OUTPUT ACCEPT
  sudo iptables -P FORWARD ACCEPT
  sudo iptables -F
-
 }
+export ROS_MASTER_URI=http://10.223.142.5:11311
 # ROBOT_NAME=robot_0
 field_setup_doodle
