@@ -14,3 +14,23 @@ function check_ipaddr
   wc -l
 }
 
+function wait_for_ip
+{
+  while ! ping -c 1 -n -w 1 $1 &> /dev/null
+    do
+      echo "Ping fail $1"
+      sleep 1
+  done
+  echo "Ping success $1
+  "
+}
+
+
+function wait_for_process
+{
+  while ! ps aux | grep -v grep | grep "$1" > /dev/null; do
+    sleep 1 # Wait for 1 second before checking again
+  done
+
+  echo "Process '$1' has started!"
+}
