@@ -14,3 +14,31 @@ function field_setup_doodle() {
 }
 # ROBOT_NAME=robot_0
 field_setup_doodle
+
+function read_index() 
+{
+    cat "/home/catabot-5/index.txt";
+}
+
+# function update_index() {
+#     filename="/home/catabot-5/index.txt"
+#     counter=$(cat $filename)
+#     ((counter++))
+#     echo "$counter" > $filename
+# }
+
+# # first
+# function update_experiment_date() {
+#     filename="/home/catabot-5/index.txt"
+    
+#     # Generate a timestamp
+#     CURRENT_TIME=$(date +"%Y-%m-%d_%H-%M-%S")
+
+#     echo "$CURRENT_TIME" > $filename
+# }
+
+# after
+function read_experiment_date()
+{
+    cat "/home/catabot-5/index.txt";
+}

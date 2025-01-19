@@ -14,3 +14,9 @@ function field_setup_doodle() {
 export ROS_MASTER_URI=http://10.223.142.5:11311
 # ROBOT_NAME=robot_0
 field_setup_doodle
+
+# after
+function read_experiment_date()
+{
+    cat "/home/catabot-5/index.txt";
+}

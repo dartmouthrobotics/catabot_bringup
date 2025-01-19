@@ -11,11 +11,13 @@ BASE_DIR="/home/catabot-5/datalog/rosbag2"
 # Ensure the base directory exists
 mkdir -p $BASE_DIR
 
-# Generate a timestamp
+# # Generate a timestamp
 CURRENT_TIME=$(date +"%Y-%m-%d_%H-%M-%S")
 
+experiment_date=$(read_experiment_date)_$CURRENT_TIME
+
 # Combine prefix and timestamp for folder name
-OUTPUT_DIR="${BASE_DIR}/${CURRENT_TIME}"
+OUTPUT_DIR="${BASE_DIR}/${experiment_date}"
 
 # Topics to record
 TOPICS=(

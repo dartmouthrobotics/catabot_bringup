@@ -28,6 +28,20 @@ while [ ! -L "$filename" ]; do
 done
 echo "File $filename exists."
 
+# check if file exists
+target=$(readlink -f "$filename")
+
+while true; do
+  if [ -e "$target" ]; then
+    echo "$target found!"
+    # Do something with ttyACM1 here
+    break  # Exit the loop if found
+  else
+    echo "$target not found, retrying..."
+    sleep 1  # Wait for 1 second before retrying
+  fi
+done
+
 # ROS Master check
 wait_for_ip 10.223.142.5 # TODO configuration file
 
@@ -36,4 +50,6 @@ wait_for_process roscore
 # ROBOT_NAME=robot_0
 ROBOT_NAME=""
 source /home/catabot-5/catkin_ws/src/catabot_bringup/script/common_include.sh
-ROS_NAMESPACE=$ROBOT_NAME roslaunch catabot_bringup catabot_bringup.launch
+exp_date=$(read_experiment_date)
+echo "Experiment data $exp_date."
+ROS_NAMESPACE=$ROBOT_NAME roslaunch catabot_bringup catabot_bringup.launch experiment_date:=$exp_date

@@ -1,6 +1,7 @@
 <launch>
 
-<arg name="bag.name" default="$(env HOME)/datalog/rosbag/$(env USER)"/>
+<arg name="experiment_date" default="9999-99-99_99-99-99" />
+<arg name="bag.name" default="$(env HOME)/datalog/rosbag/$(env USER)_$(arg experiment_date)"/> 
 <arg name="bag.topics"
      default=
      "
@@ -188,6 +189,7 @@
 /odometry/filtered
 /ouster/imu_packets
 /ouster/lidar_packets
+/ouster/metadata
 /rosout
 /rosout_agg
 /set_pose

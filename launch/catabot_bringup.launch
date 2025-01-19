@@ -10,6 +10,9 @@
   <arg name="use_logging" default="true"/>  
   <arg name="use_pixhawk" default="true"/>
 
+  <!-- experiment date -->
+  <arg name="experiment_date" default="9999-99-99_99-99-99" />
+
   <!-- time delays -->
   <arg name="usb_cam_node_start_delay" default="3.0" />
   <arg name="usb_cam_underwater_start_delay" default="1.0" />
@@ -28,7 +31,7 @@
   <arg name="ouster_host" default="os-992121000445.local" />
   <arg name="udp_dest" default="10.223.142.5" /> <!-- host of catabot-2 -->
   <arg name="lidar_mode" default="1024x10" />
-  <arg name="metadata" default="/home/catabot-5/datalog/metadata/ouster_metadata_$(arg lidar_mode).json" />
+  <arg name="metadata" default="/home/catabot-5/datalog/metadata/ouster_metadata_$(arg lidar_mode)_$(arg experiment_date).json" />
   <arg name="viz" default="false" /> <!-- ouster rviz -->
   <arg name="timestamp_mode_ouster" default="TIME_FROM_ROS_TIME" />
 
@@ -36,6 +39,7 @@
   <group if="$(arg use_pixhawk)">
       <include file="$(find mavros)/launch/apm.launch">
           <arg name="fcu_url" value="$(arg usb_pixhawk):$(arg pixhawk_baudrate)"/>
+          <arg name="respawn_mavros" value="true"/>
       </include>
   </group>
 
@@ -121,7 +125,9 @@
 
   <!-- ROSbag Record node -->
   <group if="$(arg use_logging)">
-      <include file="$(find catabot_bringup)/launch/logger.launch" />
+      <include file="$(find catabot_bringup)/launch/logger.launch">
+        <arg name="experiment_date" value="$(arg experiment_date)"/>
+      </include>
   </group>
 
 </launch>
