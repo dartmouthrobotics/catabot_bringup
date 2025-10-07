@@ -187,6 +187,7 @@
 /odometry/filtered
 /ouster/imu_packets
 /ouster/lidar_packets
+/ouster/metadata
 /imagenex896/range
 /imagenex896/range_raw
 /rosout
