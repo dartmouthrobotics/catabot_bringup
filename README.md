@@ -4,8 +4,18 @@
 2. new Ouster driver doesn't need `metadata` as an argument. We need to set `sensor_hostname` as `os-serialnumber.local` and `udp_dest` as computer's ip connected to LiDAR.
     a. need to record `/ouster/metadata` based on the new ROS driver
 
-## launch 
-roslaunch catabot_bringup catabot_bringup.launch 
+## launch
+Use a single entrypoint with a mode switch.
+
+Standalone nodes (default):
+```bash
+ros2 launch catabot_bringup catabot_bringup.launch.py use_composable:=false
+```
+
+Composable nodes:
+```bash
+ros2 launch catabot_bringup catabot_bringup.launch.py use_composable:=true
+```
 
 ## replay
 * `TIME_FROM_ROS_TIME` is essential to retrieve the time when the bag file is recorded and time sync.
