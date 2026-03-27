@@ -42,8 +42,8 @@ os.environ["RCUTILS_COLORIZED_OUTPUT"] = "1"
 
 # ZED Configurations to be loaded by ZED Node
 default_config_common = os.path.join(
-    get_package_share_directory('zed_wrapper'),
-    'config',
+    get_package_share_directory('catabot_bringup'),
+    'param/zed',
     'common'
 )
 
@@ -189,8 +189,8 @@ def launch_setup(context, *args, **kwargs):
 
     # Camera configuration file
     config_camera_path = os.path.join(
-        get_package_share_directory('zed_wrapper'),
-        'config',
+        get_package_share_directory('catabot_bringup'),
+        'param/zed',
         camera_model_val + '.yaml'
     )
 
