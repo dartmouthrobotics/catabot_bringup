@@ -20,9 +20,10 @@ def generate_launch_description():
     Generate launch description for running ouster_ros components in a single
     process/container.
     """
+    catabot_bringup_ros_pkg_dir = get_package_share_directory('catabot_bringup')
     ouster_ros_pkg_dir = get_package_share_directory('ouster_ros')
     default_params_file = \
-        Path(ouster_ros_pkg_dir) / 'config' / 'os_sensor_cloud_image_params.yaml'
+        Path(catabot_bringup_ros_pkg_dir) / 'param' / 'os_sensor_cloud_image_params.yaml'
     params_file = LaunchConfiguration('params_file')
     params_file_arg = DeclareLaunchArgument('params_file',
                                             default_value=str(
