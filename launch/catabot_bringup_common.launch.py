@@ -142,6 +142,7 @@ def generate_launch_description():
     zed_publish_tf = LaunchConfiguration("zed_publish_tf")
     zed_publish_map_tf = LaunchConfiguration("zed_publish_map_tf")
     zed_publish_imu_tf = LaunchConfiguration("zed_publish_imu_tf")
+    use_zedx = LaunchConfiguration("use_ZEDX")
     use_zed_blue = LaunchConfiguration("use_zed_blue")
     use_zed_green = LaunchConfiguration("use_zed_green")
     use_zed_red = LaunchConfiguration("use_zed_red")
@@ -275,53 +276,60 @@ def generate_launch_description():
         ],
     )
 
-    def _zed_include(namespace, serial_number, use_condition):
+    def _zed_include(namespace, serial_number, use_condition, time_delay=0.0):
+
         return GroupAction(
             condition=IfCondition(use_condition),
             actions=[
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution(
-                            [FindPackageShare("catabot_bringup"), "launch", "zed_camera.launch.py"]
-                        )
-                    ]),
-                    condition=_is_composable(use_composable),
-                    launch_arguments={
-                        "namespace": namespace,
-                        "camera_model": zed_camera_model,
-                        "serial_number": serial_number,
-                        "publish_tf": zed_publish_tf,
-                        "publish_map_tf": zed_publish_map_tf,
-                        "publish_imu_tf": zed_publish_imu_tf,
-                        "use_composable": "true",
-                        "zed_record_root_dir": zed_record_root_dir,
-                        "zed_record_session": zed_record_session,
-                    }.items(),
-                ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution(
-                            [FindPackageShare("zed_wrapper"), "launch", "zed_camera.launch.py"]
-                        )
-                    ]),
-                    condition=_is_standalone(use_composable),
-                    launch_arguments={
-                        "namespace": namespace,
-                        "camera_model": zed_camera_model,
-                        "serial_number": serial_number,
-                        "publish_tf": zed_publish_tf,
-                        "publish_map_tf": zed_publish_map_tf,
-                        "publish_imu_tf": zed_publish_imu_tf,
-                        "container_name": "",
-                    }.items(),
-                ),
+                TimerAction(
+                    period=time_delay,
+                    actions=[
+                        IncludeLaunchDescription(
+                            PythonLaunchDescriptionSource([
+                                PathJoinSubstitution(
+                                    [FindPackageShare("catabot_bringup"), "launch", "zed_camera.launch.py"]
+                                )
+                            ]),
+                            condition=_is_composable(use_composable),
+                            launch_arguments={
+                                "namespace": namespace,
+                                "camera_model": zed_camera_model,
+                                "serial_number": serial_number,
+                                "publish_tf": zed_publish_tf,
+                                "publish_map_tf": zed_publish_map_tf,
+                                "publish_imu_tf": zed_publish_imu_tf,
+                                "use_composable": "true",
+                                "zed_record_root_dir": zed_record_root_dir,
+                                "zed_record_session": zed_record_session,
+                                "use_logging": use_logging,
+                            }.items(),
+                        ),
+                        IncludeLaunchDescription(
+                            PythonLaunchDescriptionSource([
+                                PathJoinSubstitution(
+                                    [FindPackageShare("zed_wrapper"), "launch", "zed_camera.launch.py"]
+                                )
+                            ]),
+                            condition=_is_standalone(use_composable),
+                            launch_arguments={
+                                "namespace": namespace,
+                                "camera_model": zed_camera_model,
+                                "serial_number": serial_number,
+                                "publish_tf": zed_publish_tf,
+                                "publish_map_tf": zed_publish_map_tf,
+                                "publish_imu_tf": zed_publish_imu_tf,
+                                "container_name": "",
+                            }.items(),
+                        ),
+                    ],
+                )
             ],
         )
 
-    zed_blue = _zed_include("blue", zed_sn_blue, use_zed_blue)
-    zed_green = _zed_include("green", zed_sn_green, use_zed_green)
-    zed_red = _zed_include("red", zed_sn_red, use_zed_red)
-    zed_pink = _zed_include("pink", zed_sn_pink, use_zed_pink)
+    zed_blue = _zed_include("blue", zed_sn_blue, use_zedx and use_zed_blue, 5.0)
+    zed_green = _zed_include("green", zed_sn_green, use_zedx and use_zed_green, 10.0)
+    zed_red = _zed_include("red", zed_sn_red, use_zedx and use_zed_red, 15.0)
+    zed_pink = _zed_include("pink", zed_sn_pink, use_zedx and use_zed_pink, 20.0)
 
     ouster_group = GroupAction(
         condition=IfCondition(lidar_ouster),

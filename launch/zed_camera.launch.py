@@ -67,6 +67,12 @@ default_xacro_path = os.path.join(
     'zed_descr.urdf.xacro'
 )
 
+default_qos_overrides_path = os.path.join(
+    get_package_share_directory('catabot_bringup'),
+    'param',
+    'qos_overrides.yaml'
+)
+
 # Function to parse array-like launch arguments
 def parse_array_param(param):
     cleaned = param.replace('[', '').replace(']', '').replace(' ', '')
@@ -92,8 +98,10 @@ def launch_setup(context, *args, **kwargs):
     stream_address = LaunchConfiguration('stream_address')
     stream_port = LaunchConfiguration('stream_port')
     use_composable = LaunchConfiguration('use_composable')
+    use_logging = LaunchConfiguration('use_logging')
     zed_record_root_dir = LaunchConfiguration('zed_record_root_dir')
     zed_record_session = LaunchConfiguration('zed_record_session')
+    qos_profile_overrides_path = LaunchConfiguration('qos_profile_overrides_path')
 
     container_name = LaunchConfiguration('container_name')
     namespace = LaunchConfiguration('namespace')
@@ -162,7 +170,7 @@ def launch_setup(context, *args, **kwargs):
 
     zed_record_root_dir_val = zed_record_root_dir.perform(context)
     zed_record_session_val = zed_record_session.perform(context)
-    zed_record_name_val = f"{namespace_val}_{node_name_val}_"
+    zed_record_name_val = f"{namespace_val}_{node_name_val}_{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
     zed_record_path_val = os.path.join(
         zed_record_root_dir_val,
         zed_record_session_val,
@@ -355,61 +363,19 @@ def launch_setup(context, *args, **kwargs):
         composable_node_descriptions=[zed_wrapper_component]
     )
 
-    topics = ['/' + namespace_val + '/' + node_name_val + '/left/color/raw/image/compressed',
+    topics = ['left/color/raw/image/compressed',
         # '/' + namespace_val + '/' + node_name_val + '/left/color/raw/camera_info',
-        '/' + namespace_val + '/' + node_name_val + '/right/color/raw/image/compressed',
+        'right/color/raw/image/compressed',
         # '/' + namespace_val + '/' + node_name_val + '/right/color/raw/camera_info',
         # '/' + namespace_val + '/' + node_name_val + '/depth/depth_registered',
         # '/' + namespace_val + '/' + node_name_val + '/pose',
         # '/' + namespace_val + '/' + node_name_val + '/odom',
-        '/' + namespace_val + '/' + node_name_val + '/imu/data']
+        'imu/data']
 
-    # record_composable_node = LoadComposableNodes(
-    #         # This must match the name of your existing container
-    #         target_container=full_container_name,
-    #         composable_node_descriptions=[
-    #             ComposableNode(
-    #                 package='rosbag2_composable_recorder',
-    #                 plugin='rosbag2_composable_recorder::ComposableRecorder',
-    #                 namespace=namespace_val,
-    #                 name='recorder_node',
-    #                 parameters=[{
-    #                     # Storage settings
-    #                     'bag_prefix': '/home/catabot-5/datalog/tmp/test_bag',
-    #                     'storage_id': 'mcap',
-    #                     'max_cache_size': 8589934592,
-    #                     # Record settings
-    #                     'record_all': False,
-    #                     'serialization_format': 'cdr',
-    #                     'start_recording_immediately': False,
-    #                     'topics': topics,
-    #                     'disable_discovery': True,
-    #                 #     'topic_qos_profile_overrides': {
-    #                 # '/' + namespace_val + '/' + node_name_val + '/left/color/raw/image/compressed': {
-    #                 #     'history': 'keep_last',
-    #                 #     'depth': 60,
-    #                 #     'reliability': 'best_effort',
-    #                 # },
-    #                 # '/' + namespace_val + '/' + node_name_val + '/right/color/raw/image/compressed': {
-    #                 #     'history': 'keep_last',
-    #                 #     'depth': 60,
-    #                 #     'reliability': 'best_effort',
-    #                 # },
-    #                 # '/' + namespace_val + '/' + node_name_val + '/imu/data': {
-    #                 #     'history': 'keep_last',
-    #                 #     'depth': 200,
-    #                 #     'reliability': 'best_effort',
-    #                 # },
-    #             },
-    #                 }],
-    #                 remappings=[],
-    #                 extra_arguments=[{'use_intra_process_comms': enable_ipc}],
-    #             ),
-    #         ],
-    #     )
 
+    """
     record_composable_node = LoadComposableNodes(
-        condition=IfCondition(use_composable),
+        condition=IfCondition(use_composable and use_logging),
         target_container=full_container_name,
         composable_node_descriptions=[
             ComposableNode(
@@ -425,10 +391,37 @@ def launch_setup(context, *args, **kwargs):
                     'topics': topics,
                 }],
                 remappings=[],
-                extra_arguments=[{'use_intra_process_comms': False}],#enable_ipc}],
+                extra_arguments=[{'use_intra_process_comms': True}],#enable_ipc}],
             ),
         ],
     )
+    """
+    record_composable_node = LoadComposableNodes(
+        condition=IfCondition((use_composable and use_logging)),
+            target_container=full_container_name,
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='rosbag2_composable_recorder',
+                    plugin='rosbag2_composable_recorder::ComposableRecorder',
+                    namespace='/' + namespace_val + '/' + node_name_val,
+                    name='recorder_node',
+                    parameters=[{
+                        'bag_name': zed_record_path_val,#bag_prefix,
+                        'storage_id': 'mcap',
+                        'max_cache_size': 0,
+                        'record_all': False,
+                        'serialization_format': 'cdr',
+                        'start_recording_immediately': True,
+                        'topics': topics,
+                        'qos_profile_overrides_path': qos_profile_overrides_path,
+                        'disable_discovery': False,
+                    }],
+                    remappings=[],
+                    extra_arguments=[{'use_intra_process_comms': True}],
+                ),
+            ],
+        )
+
 
     return_array.append(load_composable_node)
     return_array.append(record_composable_node)
@@ -577,6 +570,15 @@ def generate_launch_description():
                 'stream_port',
                 default_value='30000',
                 description='The connection port of the input streaming server.'),
+            DeclareLaunchArgument(
+                'use_logging',
+                default_value='false',
+                description='Enable logger.',
+                choices=['true', 'false']),
+            DeclareLaunchArgument(
+                'qos_profile_overrides_path',
+                default_value=TextSubstitution(text=default_qos_overrides_path),
+                description='path to rosbag2 QoS override YAML file.'),
             OpaqueFunction(function=launch_setup)
         ]
     )
