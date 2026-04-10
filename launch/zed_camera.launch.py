@@ -70,6 +70,7 @@ default_xacro_path = os.path.join(
 default_qos_overrides_path = os.path.join(
     get_package_share_directory('catabot_bringup'),
     'param',
+    'zed',
     'qos_overrides.yaml'
 )
 
