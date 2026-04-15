@@ -409,7 +409,7 @@ def launch_setup(context, *args, **kwargs):
                     parameters=[{
                         'bag_name': zed_record_path_val,#bag_prefix,
                         'storage_id': 'mcap',
-                        'max_cache_size': 0,
+                        'max_cache_size': 1048576000,
                         'record_all': False,
                         'serialization_format': 'cdr',
                         'start_recording_immediately': True,
