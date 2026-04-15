@@ -3,6 +3,14 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
+sudo jetson_clocks # lock frequency to max
+
+# https://www.stereolabs.com/docs/ros2/dds-and-network-tuning
+sudo sysctl -w net.ipv4.ipfrag_time=3
+sudo sysctl -w net.ipv4.ipfrag_high_thresh=134217728
+sudo sysctl -w net.core.rmem_max=2147483647
+sudo sysctl -w net.core.wmem_max=2147483647
+
 source /opt/ros/humble/setup.bash
 source /home/catabot-5/boat_ws/install/setup.bash
 

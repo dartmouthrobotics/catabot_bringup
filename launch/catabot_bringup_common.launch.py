@@ -294,6 +294,12 @@ def generate_launch_description():
                             launch_arguments={
                                 "namespace": namespace,
                                 "camera_model": zed_camera_model,
+                                "camera_name": [
+                                    TextSubstitution(text=namespace + "_"),
+                                    zed_camera_model,
+                                    TextSubstitution(text="_sn"),
+                                    serial_number,
+                                ],
                                 "serial_number": serial_number,
                                 "publish_tf": zed_publish_tf,
                                 "publish_map_tf": zed_publish_map_tf,

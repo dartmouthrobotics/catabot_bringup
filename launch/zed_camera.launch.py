@@ -28,6 +28,7 @@ from launch.conditions import IfCondition
 from launch.substitutions import (
     LaunchConfiguration,
     Command,
+    PythonExpression,
     TextSubstitution
 )
 from launch_ros.actions import (
@@ -373,6 +374,48 @@ def launch_setup(context, *args, **kwargs):
         # '/' + namespace_val + '/' + node_name_val + '/odom',
         'imu/data']
 
+    left_encoder_node = LoadComposableNodes(
+        condition=IfCondition(PythonExpression(["'", use_composable, "' == 'true' and '", use_logging, "' == 'true' and '", enable_ipc, "' != 'true'"])),
+        target_container=full_container_name,
+        composable_node_descriptions=[  
+        ComposableNode(
+        namespace='/' + namespace_val + '/' + node_name_val,
+        name='left_encoder_node',
+        package='isaac_ros_h264_encoder',
+        plugin='nvidia::isaac_ros::h264_encoder::EncoderNode',
+        parameters=[{
+            'input_width': 1920,
+            'input_height': 1200,
+            'config': 'iframe_cqp',
+        }],
+        remappings=[
+            ('image_raw', 'left/color/raw/image'),
+            ('image_compressed', 'left/color/raw/image/compressed')
+        ]
+    
+        )]
+        )
+
+    right_encoder_node = LoadComposableNodes(
+        condition=IfCondition(PythonExpression(["'", use_composable, "' == 'true' and '", use_logging, "' == 'true' and '", enable_ipc, "' != 'true'"])),
+            target_container=full_container_name,
+            composable_node_descriptions=[
+      ComposableNode(
+        namespace='/' + namespace_val + '/' + node_name_val,
+        name='right_encoder_node',
+        package='isaac_ros_h264_encoder',
+        plugin='nvidia::isaac_ros::h264_encoder::EncoderNode',
+        parameters=[{
+            'input_width': 1920,
+            'input_height': 1200,
+            'config': 'iframe_cqp',
+        }],
+        remappings=[
+            ('image_raw', 'right/color/raw/image'),
+            ('image_compressed', 'right/color/raw/image/compressed')
+        ]
+    )]
+      )
 
     """
     record_composable_node = LoadComposableNodes(
@@ -392,7 +435,7 @@ def launch_setup(context, *args, **kwargs):
                     'topics': topics,
                 }],
                 remappings=[],
-                extra_arguments=[{'use_intra_process_comms': True}],#enable_ipc}],
+                extra_arguments=[{'use_intra_process_comms': enable_ipc}],
             ),
         ],
     )
@@ -418,13 +461,15 @@ def launch_setup(context, *args, **kwargs):
                         'disable_discovery': False,
                     }],
                     remappings=[],
-                    extra_arguments=[{'use_intra_process_comms': True}],
+                    extra_arguments=[{'use_intra_process_comms': enable_ipc}],
                 ),
             ],
         )
 
 
     return_array.append(load_composable_node)
+    return_array.append(left_encoder_node)
+    return_array.append(right_encoder_node)
     return_array.append(record_composable_node)
 
     return return_array
@@ -529,7 +574,7 @@ def generate_launch_description():
                 description='Position of the GNSS antenna with respect to the mounting point of the ZED camera. Format: [x,y,z]'),
             DeclareLaunchArgument(
                 'enable_ipc',
-                default_value='true',
+                default_value='false',
                 description='Enable intra-process communication (IPC) with ROS 2 Composition',
                 choices=['true', 'false']),
             DeclareLaunchArgument(
