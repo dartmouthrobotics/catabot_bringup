@@ -1,0 +1,11 @@
+default_camera: blue
+
+cameras:
+  blue:
+    serial_number: "47479174"
+  green:
+    serial_number: "47983353"
+  red:
+    serial_number: "42151672"
+  pink:
+    serial_number: "47226740"

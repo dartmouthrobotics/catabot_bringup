@@ -16,10 +16,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import launch
+import os
+import yaml
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from ament_index_python.packages import get_package_share_directory
+
+
+def _load_zed_camera_config():
+    config_path = os.path.join(
+        get_package_share_directory('catabot_bringup'),
+        'param/zed_cameras.yaml',
+    )
+    with open(config_path, 'r') as config_file:
+        return yaml.safe_load(config_file)
+
+
+def _camera_topic_prefix(camera_config, camera_name):
+    camera_info = camera_config.get('cameras', {}).get(camera_name)
+    if camera_info is None:
+        available_cameras = ', '.join(sorted(camera_config.get('cameras', {}).keys()))
+        raise ValueError(f'Unknown camera_name: {camera_name}. Available cameras: {available_cameras}')
+
+    serial_number = str(camera_info['serial_number'])
+    return f'/{camera_name}/{camera_name}_zedx_sn{serial_number}'
 
 
 def _build_decoder_node(name, compressed_topic, uncompressed_topic):
@@ -35,6 +57,8 @@ def _build_decoder_node(name, compressed_topic, uncompressed_topic):
 
 
 def _launch_setup(context, *args, **kwargs):
+    camera_config = _load_zed_camera_config()
+    camera_name = LaunchConfiguration('camera_name').perform(context)
     camera_topic_prefix = LaunchConfiguration('camera_topic_prefix').perform(context).rstrip('/')
     stereo = LaunchConfiguration('stereo').perform(context).lower() == 'true'
     camera_side = LaunchConfiguration('camera_side').perform(context)
@@ -42,6 +66,9 @@ def _launch_setup(context, *args, **kwargs):
     log_level = LaunchConfiguration('log_level').perform(context)
     play_rosbag = LaunchConfiguration('play_rosbag').perform(context).lower() == 'true'
     rosbag_path = LaunchConfiguration('rosbag_path').perform(context)
+
+    if not camera_topic_prefix:
+        camera_topic_prefix = _camera_topic_prefix(camera_config, camera_name)
 
     left_image_compressed_topic = f'{camera_topic_prefix}/left/color/raw/image/compressed'
     left_image_uncompressed_topic = f'{camera_topic_prefix}/left/color/raw/image'
@@ -97,12 +124,20 @@ def _launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    """Launch H.264 decoder node(s) with optional rosbag playback."""
+    """Launch H.264 decoder node(s) with optional rosbag playback.
+
+    For replay-focused usage examples, see isaac_ros_h264_decoder_rosbag.launch.py.
+    """
     launch_args = [
         DeclareLaunchArgument(
+            'camera_name',
+            default_value='blue',
+            description='Camera name from param/zed_cameras.yaml'
+        ),
+        DeclareLaunchArgument(
             'camera_topic_prefix',
-            default_value='/blue/zed',
-            description='Base camera topic prefix. Example: /red/red_zedx_sn42151672'
+            default_value='',
+            description='Optional explicit camera topic prefix. If empty, derive from camera_name using param/zed_cameras.yaml'
         ),
         DeclareLaunchArgument(
             'stereo',

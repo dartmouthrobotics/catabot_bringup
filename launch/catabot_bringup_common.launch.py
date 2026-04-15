@@ -5,6 +5,8 @@ Set use_composable:=false for standalone node mode.
 """
 
 from datetime import datetime
+import os
+import yaml
 
 from launch import LaunchDescription
 from launch.actions import (
@@ -26,6 +28,7 @@ from launch.substitutions import (
 from launch_ros.actions import LoadComposableNodes, Node, PushRosNamespace
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 
 
 def _is_composable(use_composable):
@@ -36,7 +39,19 @@ def _is_standalone(use_composable):
     return UnlessCondition(use_composable)
 
 
+def _load_zed_camera_config():
+    config_path = os.path.join(
+        get_package_share_directory('catabot_bringup'),
+        'param/zed_cameras.yaml',
+    )
+    with open(config_path, 'r') as config_file:
+        return yaml.safe_load(config_file)
+
+
 def generate_launch_description():
+    zed_camera_config = _load_zed_camera_config()
+    zed_cameras = zed_camera_config.get('cameras', {})
+
     args = [
         DeclareLaunchArgument("use_composable", default_value="false"),
 
@@ -83,10 +98,10 @@ def generate_launch_description():
         DeclareLaunchArgument("use_zed_green", default_value="true"),
         DeclareLaunchArgument("use_zed_red", default_value="true"),
         DeclareLaunchArgument("use_zed_pink", default_value="true"),
-        DeclareLaunchArgument("zed_sn_blue", default_value="47479174"),
-        DeclareLaunchArgument("zed_sn_green", default_value="47983353"),
-        DeclareLaunchArgument("zed_sn_red", default_value="42151672"),
-        DeclareLaunchArgument("zed_sn_pink", default_value="47226740"),
+        DeclareLaunchArgument("zed_sn_blue", default_value=str(zed_cameras["blue"]["serial_number"])),
+        DeclareLaunchArgument("zed_sn_green", default_value=str(zed_cameras["green"]["serial_number"])),
+        DeclareLaunchArgument("zed_sn_red", default_value=str(zed_cameras["red"]["serial_number"])),
+        DeclareLaunchArgument("zed_sn_pink", default_value=str(zed_cameras["pink"]["serial_number"])),
         DeclareLaunchArgument("zed_record_root_dir", default_value="/home/catabot-5/datalog/rosbag2"),
         DeclareLaunchArgument(
             "zed_record_session",

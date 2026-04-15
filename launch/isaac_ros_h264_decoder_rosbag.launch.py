@@ -24,16 +24,26 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    """Launch stereo H.264 decoder with rosbag playback."""
+        """Launch stereo H.264 decoder with rosbag playback.
+
+        Usage:
+            ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
+                rosbag_path:=/path/to/bag camera_name:=green
+        """
     launch_args = [
         DeclareLaunchArgument(
             'rosbag_path',
             description='Path of the rosbag'
         ),
         DeclareLaunchArgument(
+            'camera_name',
+            default_value='blue',
+            description='Camera name from param/zed_cameras.yaml'
+        ),
+        DeclareLaunchArgument(
             'camera_topic_prefix',
-            default_value='/blue/zed',
-            description='Base camera topic prefix. Example: /red/red_zedx_sn42151672'
+            default_value='',
+            description='Optional explicit camera topic prefix. If empty, derive from camera_name using param/zed_cameras.yaml'
         ),
         DeclareLaunchArgument(
             'container_name',
@@ -48,6 +58,7 @@ def generate_launch_description():
     ]
 
     rosbag_path = LaunchConfiguration('rosbag_path')
+    camera_name = LaunchConfiguration('camera_name')
     camera_topic_prefix = LaunchConfiguration('camera_topic_prefix')
     container_name = LaunchConfiguration('container_name')
     log_level = LaunchConfiguration('log_level')
@@ -61,6 +72,7 @@ def generate_launch_description():
             ])
         ]),
         launch_arguments={
+            'camera_name': camera_name,
             'camera_topic_prefix': camera_topic_prefix,
             'stereo': 'true',
             'container_name': container_name,

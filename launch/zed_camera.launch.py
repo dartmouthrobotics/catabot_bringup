@@ -172,7 +172,7 @@ def launch_setup(context, *args, **kwargs):
 
     zed_record_root_dir_val = zed_record_root_dir.perform(context)
     zed_record_session_val = zed_record_session.perform(context)
-    zed_record_name_val = f"{namespace_val}_{node_name_val}_{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+    zed_record_name_val = f"{node_name_val}_{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
     zed_record_path_val = os.path.join(
         zed_record_root_dir_val,
         zed_record_session_val,

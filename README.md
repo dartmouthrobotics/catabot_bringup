@@ -23,6 +23,31 @@ ros2 launch catabot_bringup catabot_bringup.launch.py use_composable:=true
 roslaunch ouster_ros replay.launch bag_file:=/home/catabot-4/datalog/rosbag/catabot-4_2025-10-08-20-21-20.bag timestamp_mode:=TIME_FROM_ROS_TIME
 ```
 
+### H.264 decoder replay
+
+Use the rosbag decoder wrapper when replaying compressed ZED image topics from a recorded bag.
+
+Generic form:
+```bash
+ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
+    rosbag_path:=/path/to/bag \
+    camera_name:=green
+```
+
+Concrete example:
+```bash
+ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
+    rosbag_path:=/mnt/nova_ssd/datalog/rosbag2/2026-04-15-18-06-19/green_zedx_sn47983353_2026-04-15-18-06-29 \
+    camera_name:=green
+```
+
+If needed, you can bypass `camera_name` and set the full topic prefix directly:
+```bash
+ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
+    rosbag_path:=/path/to/bag \
+    camera_topic_prefix:=/green/green_zedx_sn47983353
+```
+
 ## checking
 
 1. running
