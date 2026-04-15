@@ -17,8 +17,9 @@
 
 import launch
 import os
+import re
 import yaml
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, LogInfo, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
@@ -35,13 +36,20 @@ def _load_zed_camera_config():
 
 
 def _camera_topic_prefix(camera_config, camera_name):
-    camera_info = camera_config.get('cameras', {}).get(camera_name)
+    normalized_name = camera_name.strip().strip('/').lower()
+    camera_info = camera_config.get('cameras', {}).get(normalized_name)
     if camera_info is None:
+        # Also accept a full camera token like "green_zedx_sn47983353".
+        token_match = re.fullmatch(r'([a-z0-9_]+)_zedx_sn(\d+)', normalized_name)
+        if token_match:
+            token_name, token_serial = token_match.groups()
+            return f'/{token_name}/{token_name}_zedx_sn{token_serial}'
+
         available_cameras = ', '.join(sorted(camera_config.get('cameras', {}).keys()))
         raise ValueError(f'Unknown camera_name: {camera_name}. Available cameras: {available_cameras}')
 
     serial_number = str(camera_info['serial_number'])
-    return f'/{camera_name}/{camera_name}_zedx_sn{serial_number}'
+    return f'/{normalized_name}/{normalized_name}_zedx_sn{serial_number}'
 
 
 def _build_decoder_node(name, compressed_topic, uncompressed_topic):
@@ -70,12 +78,16 @@ def _launch_setup(context, *args, **kwargs):
     if not camera_topic_prefix:
         camera_topic_prefix = _camera_topic_prefix(camera_config, camera_name)
 
+    actions = []
+
+    actions.append(
+        LogInfo(msg=f'isaac_ros_h264_decoder: using camera_topic_prefix={camera_topic_prefix}')
+    )
+
     left_image_compressed_topic = f'{camera_topic_prefix}/left/color/raw/image/compressed'
     left_image_uncompressed_topic = f'{camera_topic_prefix}/left/color/raw/image'
     right_image_compressed_topic = f'{camera_topic_prefix}/right/color/raw/image/compressed'
     right_image_uncompressed_topic = f'{camera_topic_prefix}/right/color/raw/image'
-
-    actions = []
 
     if play_rosbag:
         actions.append(

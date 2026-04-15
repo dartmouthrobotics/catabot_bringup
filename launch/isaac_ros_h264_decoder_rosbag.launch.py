@@ -24,12 +24,12 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-        """Launch stereo H.264 decoder with rosbag playback.
+    """Launch stereo H.264 decoder with rosbag playback.
 
-        Usage:
-            ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
-                rosbag_path:=/path/to/bag camera_name:=green
-        """
+    Usage:
+      ros2 launch catabot_bringup isaac_ros_h264_decoder_rosbag.launch.py \
+        rosbag_path:=/path/to/bag camera_name:=green
+    """
     launch_args = [
         DeclareLaunchArgument(
             'rosbag_path',
